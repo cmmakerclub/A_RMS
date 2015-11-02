@@ -1,11 +1,21 @@
-MqttConnector::prepare_data_hook_t on_prepare_data = 
+MqttConnector::prepare_data_hook_t on_prepare_data =
 [&](JsonObject * root) -> void {
-    JsonObject& data = (*root)["d"];
-    JsonObject& info = (*root)["info"];
-    data["myName"] = DEVICE_NAME;
-    info["author"] = AUTHOR;
-    info["board"]  = BOARD;
-    info["ReadAmp"] = ReadAmp;
+  JsonObject& data = (*root)["d"];
+  JsonObject& info = (*root)["info"];
+  data["myName"] = DEVICE_NAME;
+  info["author"] = AUTHOR;
+  info["board"]  = BOARD;
+  Wire.requestFrom(1, 2);
+  ReadAmp = Wire.read() << 8 | Wire.read();
+  ReadAmp = ReadAmp/10.0;
+  Serial.print(ReadAmp);
+  
+  data["current"] = ReadAmp;
+  data["temp"] = ReadAmp;  
+//  delay(50);
+//  ReadAmp = Wire.read() << 8 | Wire.read();
+//  ReadAmp = ReadAmp;
+  Serial.print(ReadAmp);  
 };
 
 // MQTT INITIALIZER
@@ -13,8 +23,8 @@ void init_mqtt()
 {
   mqtt = new MqttConnector(MQTT_HOST, MQTT_PORT);
   mqtt->prepare_configuration([&](MqttConnector::Config * config) -> void {
-   config->clientId  = String(MQTT_CLIENT_ID);
-   config->channelPrefix = String(MQTT_PREFIX);    
+    config->clientId  = String(MQTT_CLIENT_ID);
+    config->channelPrefix = String(MQTT_PREFIX);
     config->enableLastWill = true;
     config->retainPublishMessage = true;
     config->publishOnly = true;
@@ -30,15 +40,15 @@ void init_mqtt()
     String macAddr;
     for (int i = 0; i < 6; ++i)
     {
-        macAddr += String(mac[i], 16);
+      macAddr += String(mac[i], 16);
     }
 
     // FORMAT
-    // d:quickstart:<type-id>:<device-id> 
-   // config->clientId += macAddr;
+    // d:quickstart:<type-id>:<device-id>
+    // config->clientId += macAddr;
 
-//   config->topicPub  = String("/HelloChiangMaiMakerClub/gearname/") + config->clientId;
-    
+    //   config->topicPub  = String("/HelloChiangMaiMakerClub/gearname/") + config->clientId;
+
 
   });
 
@@ -54,11 +64,11 @@ void init_mqtt()
   mqtt->prepare_data(on_prepare_data, PUBLISH_EVERY);
   mqtt->prepare_subscribe([&](MQTT::Subscribe * sub) -> void { });
   mqtt->after_prepare_data([&](JsonObject * root) -> void {
-//    root->remove("info");
+    //    root->remove("info");
     JsonObject& data = (*root)["d"];
-    
-//    data.remove("version");
-//    data.remove("subscription");    
+
+    //    data.remove("version");
+    //    data.remove("subscription");
   });
 
   // on_message_arrived located in _receive.h

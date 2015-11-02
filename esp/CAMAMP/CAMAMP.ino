@@ -11,16 +11,16 @@ WiFiConnector *wifi;
 int ReadAmp = 0;
 
 #define MQTT_PORT        1883
-#define PUBLISH_EVERY    3*1000 // every 15 seconds
+#define PUBLISH_EVERY    1*1000 // every 15 seconds
 
 #define MQTT_HOST "gb.netpie.io"
-#define MQTT_USERNAME "BQXB0B4zvtJPkCF"
-#define MQTT_PASSWORD "ecFhTzYzKI6KVjz93Nm3a9DkUdI="
-#define MQTT_CLIENT_ID "CpjOpeR8E0Y2kJOm"
-#define MQTT_PREFIX "/CAMAMP/gearname"
+#define MQTT_USERNAME "GaBH7sxFDUEX0hl"
+#define MQTT_PASSWORD "KAIhFrxuRh6zPubEX8FrgK2HfGc="
+#define MQTT_CLIENT_ID "rWUVLB3SFxOVv9fW"
+#define MQTT_PREFIX "/NatWeerawan/gearname"
 
 /* SENSOR INFO */
-#define DEVICE_NAME "PAO-CAMAMP"
+#define DEVICE_NAME "CLAMP.AMP"
 #define AUTHOR      "COMPILER EXE"
 #define BOARD       "ESP-ROOM"
 
@@ -37,14 +37,8 @@ void init_hardware()
   Serial.begin(115200);
   delay(10);
   Serial.println();
-  Serial.println("BEGIN");  
-}
+  Serial.println("BEGIN");
 
-void setup()
-{
-  init_hardware();
-  init_wifi();
-  init_mqtt();
   pinMode(4, INPUT_PULLUP);
   pinMode(5, INPUT_PULLUP);
   pinMode(13, OUTPUT);
@@ -52,13 +46,17 @@ void setup()
   delay(1000);
   digitalWrite(13, HIGH);
   digitalWrite(16, LOW);
+  Wire.begin();
+}
+
+void setup()
+{
+  init_hardware();
+  init_wifi();
+  init_mqtt();
 }
 
 void loop()
 {
-  Wire.requestFrom(1, 2);
-  ReadAmp = Wire.read() << 8 | Wire.read();
-  ReadAmp = ReadAmp / 10;
-  Serial.print(ReadAmp);
   mqtt->loop(wifi);
 }
