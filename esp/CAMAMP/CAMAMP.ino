@@ -21,8 +21,8 @@ int ReadAmp = 0;
 
 /* SENSOR INFO */
 #define DEVICE_NAME "CLAMP.AMP"
-#define AUTHOR      "COMPILER EXE"
-#define BOARD       "ESP-ROOM"
+#define AUTHOR      "Nat Weerawan"
+#define BOARD       "ESP-WROOM"
 
 /* WIFI INFO */
 #define WIFI_SSID        ""

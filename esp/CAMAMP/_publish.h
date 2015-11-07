@@ -1,5 +1,8 @@
 MqttConnector::prepare_data_hook_t on_prepare_data =
 [&](JsonObject * root) -> void {
+
+  pinMode(16, OUTPUT);
+  digitalWrite(16, HIGH);
   JsonObject& data = (*root)["d"];
   JsonObject& info = (*root)["info"];
   data["myName"] = DEVICE_NAME;
@@ -7,15 +10,15 @@ MqttConnector::prepare_data_hook_t on_prepare_data =
   info["board"]  = BOARD;
   Wire.requestFrom(1, 2);
   ReadAmp = Wire.read() << 8 | Wire.read();
-  ReadAmp = ReadAmp/10.0;
+  ReadAmp = ReadAmp / 10.0;
   Serial.print(ReadAmp);
-  
-  data["current"] = ReadAmp;
-  data["temp"] = ReadAmp;  
-//  delay(50);
-//  ReadAmp = Wire.read() << 8 | Wire.read();
-//  ReadAmp = ReadAmp;
-  Serial.print(ReadAmp);  
+
+  data["ReadAmp"] = ReadAmp;
+  //  data["temp"] = ReadAmp;
+  //  delay(50);
+  //  ReadAmp = Wire.read() << 8 | Wire.read();
+  //  ReadAmp = ReadAmp;
+  Serial.print(ReadAmp);
 };
 
 // MQTT INITIALIZER
@@ -82,6 +85,7 @@ void init_mqtt()
   mqtt->on_published([&](const MQTT::Publish & pub) -> void {
     Serial.print("PUBLISHED: ");
     Serial.println(pub.payload_string());
+    digitalWrite(16, LOW);
   });
 
   mqtt->connect();
